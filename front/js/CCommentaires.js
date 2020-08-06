@@ -1,6 +1,10 @@
-import { reqAjax, nl2br } from "./fonct" // On importe la fonction de requete Ajax
+import { reqAjax, nl2br, baseURL } from "./fonct.js" // On importe la fonction de requete Ajax
 
 class Commentaires {
+
+    setArt(lesArts) {
+        this.lesArts = lesArts
+    }
 
     /**********************************************/
     /*   Bloc de fonctions faisant appel à l'API  */
@@ -19,10 +23,10 @@ class Commentaires {
     }
     traiteFormAjCom() { // Ajout d'un commentaire
         let dataEnv = "username=" + document.getElementById('username').value + "&content=" + nl2br(document.getElementById('content').value) + "&postid=" + document.getElementById('postId').value
-        reqAjax("POST", "http://localhost/API/comments/", dataEnv, (data) => {
+        reqAjax("POST", baseURL + "comments/", dataEnv, (data) => {
             let dataP = JSON.parse(data.target.response)
             if (data.target.status == 200) {
-                mesArt.recupDetArt("http://localhost/API/posts/" + dataP[0].postid)
+                this.lesArts.recupDetArt(baseURL + "posts/" + dataP[0].postid)
             }
             else {
                 let messP = JSON.parse(data.target.response)
@@ -90,7 +94,7 @@ class Commentaires {
         let ajoutCom = document.createElement('div')
         ajoutCom.classList.add('boutCom')
         ajoutCom.innerHTML = "Valider"
-        ajoutCom.addEventListener("click", this.traiteFormAjCom)
+        ajoutCom.addEventListener("click", () => { this.traiteFormAjCom() })
         monFrom.appendChild(ajoutCom)
 
         monCont.appendChild(monFrom)
@@ -100,7 +104,7 @@ class Commentaires {
     /* Bloc de fonctions des closures nécessaires */
     /**********************************************/
     closeafficheFormAjCom(idPost) {
-        return function (e) {
+        return (e) => {
             this.afficheFormAjCom(idPost)
         }
     }

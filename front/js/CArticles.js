@@ -1,4 +1,4 @@
-import { reqAjax } from "./fonct" // On importe la fonction de requete Ajax
+import { reqAjax, baseURL } from "./fonct.js" // On importe la fonction de requete Ajax
 
 class Articles {
 
@@ -39,10 +39,10 @@ class Articles {
     traiteFormAjArt() { // Ajout d'un article
         var formElement = document.querySelector("form");
         var formData = new FormData(formElement);
-        reqAjax("POST", "http://localhost/API/posts/?idUser=" + this.lesUsers.idCo + "&cle=" + this.lesUsers.cleApi, formData, (data) => {
+        reqAjax("POST", baseURL + "posts/?idUser=" + this.lesUsers.idCo + "&cle=" + this.lesUsers.cleApi, formData, (data) => {
             let dataP = JSON.parse(data.target.response)
             if (data.target.status == 200) {
-                this.recupDetArt("http://localhost/API/posts/" + dataP[0].id)
+                this.recupDetArt(baseURL + "posts/" + dataP[0].id)
             }
             else {
                 let messP = JSON.parse(data.target.response)
@@ -53,10 +53,10 @@ class Articles {
     traiteFormEdArt(idArt) { // Modification d'un article
         var formElement = document.querySelector("form");
         var formData = new FormData(formElement);
-        reqAjax("PUT", "http://localhost/API/posts/" + idArt + "?idUser=" + this.lesUsers.idCo + "&cle=" + this.lesUsers.cleApi, formData, (data) => {
+        reqAjax("PUT", baseURL + "posts/" + idArt + "?idUser=" + this.lesUsers.idCo + "&cle=" + this.lesUsers.cleApi, formData, (data) => {
             let dataP = JSON.parse(data.target.response)
             if (data.target.status == 200) {
-                this.recupDetArt("http://localhost/API/posts/" + dataP[0].id)
+                this.recupDetArt(baseURL + "posts/" + dataP[0].id)
             }
             else {
                 let messP = JSON.parse(data.target.response)
@@ -66,10 +66,10 @@ class Articles {
     }
     clicSupp(idart) { // Suppression d'un article
         if (confirm("Etes vous sur de vouloir supprimer l'article : " + idart)) {
-            reqAjax("DELETE", "http://localhost/API/posts/" + idart + "?idUser=" + this.lesUsers.idCo + "&cle=" + this.lesUsers.cleApi, "", (data) => {
+            reqAjax("DELETE", baseURL + "posts/" + idart + "?idUser=" + this.lesUsers.idCo + "&cle=" + this.lesUsers.cleApi, "", (data) => {
                 let dataP = JSON.parse(data.target.response)
                 if (data.target.status == 200) {
-                    this.recupListeArt("http://localhost/API/posts")
+                    this.recupListeArt(baseURL + "posts")
                 }
                 else {
                     let messP = JSON.parse(data.target.response)
@@ -79,7 +79,7 @@ class Articles {
         }
     }
     clicEdit(idart) { // Récupération du détail d'un article pour le modifier
-        reqAjax("GET", "http://localhost/API/posts/" + idart, "", (data) => {
+        reqAjax("GET", baseURL + "posts/" + idart, "", (data) => {
             let dataP = JSON.parse(data.target.response)
             if (data.target.status == 200) {
                 this.afficheFormAjArt("", dataP[0].title, dataP[0].content, dataP[0].id)
@@ -136,7 +136,7 @@ class Articles {
             let writer = document.createElement('div')
             writer.classList.add('writer')
             writer.innerHTML = this.lesUsers.tabWriters[this.lesUsers.tabWriters.findIndex((element) => element.id == data[i].writerid)].username === undefined ? "écrit par : " + "utilisateur supprimé" : "écrit par : " + this.lesUsers.tabWriters[this.lesUsers.tabWriters.findIndex((element) => element.id == data[i].writerid)].username
-            writer.addEventListener('click', this.closerecupListeArt("http://localhost/API/writers/" + data[i].writerid + "/posts"))
+            writer.addEventListener('click', this.closerecupListeArt(baseURL + "writers/" + data[i].writerid + "/posts"))
             unArt.appendChild(writer)
 
 
@@ -147,7 +147,7 @@ class Articles {
             monCont.appendChild(titreCom)
 
             //La on va devoir récuperer les comm
-            this.lesComs.recupListeCom("http://localhost/API/posts/" + data[i].id + "/comments", data[i].id)
+            this.lesComs.recupListeCom(baseURL + "posts/" + data[i].id + "/comments", data[i].id)
 
 
         }
@@ -170,7 +170,7 @@ class Articles {
             unArt.appendChild(unEntete)
             let titre = document.createElement('h2')
             titre.innerHTML = data[i].title
-            titre.addEventListener('click', this.closerecupDetArt("http://localhost/API/posts/" + data[i].id))
+            titre.addEventListener('click', this.closerecupDetArt(baseURL + "posts/" + data[i].id))
             unEntete.appendChild(titre)
 
             if (this.lesUsers.idCo == data[i].writerid) {
@@ -195,7 +195,7 @@ class Articles {
             let writer = document.createElement('div')
             writer.classList.add('writer')
             writer.innerHTML = this.lesUsers.tabWriters[this.lesUsers.tabWriters.findIndex((element) => element.id == data[i].writerid)].username === undefined ? "écrit par : " + "utilisateur supprimé" : "écrit par : " + this.lesUsers.tabWriters[this.lesUsers.tabWriters.findIndex((element) => element.id == data[i].writerid)].username
-            writer.addEventListener('click', this.closerecupListeArt("http://localhost/API/writers/" + data[i].writerid + "/posts"))
+            writer.addEventListener('click', this.closerecupListeArt(baseURL + "writers/" + data[i].writerid + "/posts"))
             unArt.appendChild(writer)
 
 
@@ -236,10 +236,10 @@ class Articles {
         ajoutCom.classList.add('boutCom')
         ajoutCom.innerHTML = "Valider"
         if (idArt == "") {
-            ajoutCom.addEventListener("click", this.traiteFormAjArt)
+            ajoutCom.addEventListener("click", () => { this.traiteFormAjArt() })
         }
         else {
-            ajoutCom.addEventListener("click", this.closetraiteFormEdArt(idArt))
+            ajoutCom.addEventListener("click", () => { this.traiteFormEdArt(idArt) })
         }
         monFrom.appendChild(ajoutCom)
 
@@ -251,22 +251,22 @@ class Articles {
     /* Bloc de fonctions des closures nécessaires */
     /**********************************************/
     closerecupListeArt(url) {
-        return function (e) {
+        return (e) => {
             this.recupListeArt(url)
         }
     }
     closerecupDetArt(url) {
-        return function (e) {
+        return (e) => {
             this.recupDetArt(url)
         }
     }
     closeclicSupp(idart) {
-        return function (e) {
+        return (e) => {
             this.clicSupp(idart)
         }
     }
     closeclicEdit(idart) {
-        return function (e) {
+        return (e) => {
             this.clicEdit(idart)
         }
     }

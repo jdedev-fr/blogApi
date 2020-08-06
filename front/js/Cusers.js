@@ -1,4 +1,4 @@
-import { reqAjax, majMenu } from "./fonct" // On importe la fonction de requete Ajax
+import { reqAjax, majMenu, baseURL } from "./fonct.js" // On importe la fonction de requete Ajax
 
 class Users {
 
@@ -12,13 +12,14 @@ class Users {
         this.idCo = 0
         this.cleApi = ""
         this.lesArt = lesArt
+        //  this.traiteFormConn = this.traiteFormConn.bind(this)
     }
 
     deco() {
         this.idCo = 0
         this.cleApi = ""
-        majMenu()
-        mesArt.recupListeArt("http://localhost/API/posts")
+        majMenu(this.idCo)
+        this.lesArt.recupListeArt(baseURL + "posts")
     }
 
     /**********************************************/
@@ -29,7 +30,7 @@ class Users {
             alert("Vous n'etes pas connecté")
         }
         else {
-            reqAjax("GET", "http://localhost/API/writers/" + this.idCo, "", (data) => {
+            reqAjax("GET", baseURL + "writers/" + this.idCo, "", (data) => {
                 let dataP = JSON.parse(data.target.response)
                 if (data.target.status == 200) {
                     this.afficheFicheUt(dataP)
@@ -50,13 +51,13 @@ class Users {
         }
         else {
             let dataEnv = "username=" + document.getElementById('username').value + "&password=" + document.getElementById('password').value
-            reqAjax("POST", "http://localhost/API/writers/", dataEnv, (data) => {
+            reqAjax("POST", baseURL + "writers/", dataEnv, (data) => {
                 let dataP = JSON.parse(data.target.response)
                 if (data.target.status == 200) {
                     this.idCo = dataP[0].id
                     this.cleApi = dataP[0].cle
-                    majMenu()
-                    this.lesArts.recupListeArt("http://localhost/API/posts")
+                    majMenu(this.idCo)
+                    this.lesArt.recupListeArt(baseURL + "posts")
                 }
                 else {
                     let messP = JSON.parse(data.target.response)
@@ -75,13 +76,13 @@ class Users {
         }
         else {
             let dataEnv = "username=" + document.getElementById('username').value + "&password=" + document.getElementById('password').value
-            reqAjax("PUT", "http://localhost/API/writers/" + idUt + "?idUser=" + this.idCo + "&cle=" + this.cleApi, dataEnv, (data) => {
+            reqAjax("PUT", baseURL + "writers/" + idUt + "?idUser=" + this.idCo + "&cle=" + this.cleApi, dataEnv, (data) => {
                 let dataP = JSON.parse(data.target.response)
                 if (data.target.status == 200) {
                     this.idCo = dataP[0].id
                     this.cleApi = dataP[0].cle
-                    majMenu()
-                    this.lesArt.recupListeArt("http://localhost/API/posts")
+                    majMenu(this.idCo)
+                    this.lesArt.recupListeArt(baseURL + "posts")
                 }
                 else {
                     let messP = JSON.parse(data.target.response)
@@ -93,13 +94,13 @@ class Users {
     }
     traiteFormConn() { // Connexion d'un utilisateur
         let dataEnv = "username=" + document.getElementById('username').value + "&password=" + document.getElementById('password').value
-        reqAjax("POST", "http://localhost/API/connect/", dataEnv, (data) => {
+        reqAjax("POST", baseURL + "connect/", dataEnv, (data) => {
             let dataP = JSON.parse(data.target.response)
             if (data.target.status == 200) {
                 this.idCo = dataP.id
                 this.cleApi = dataP.cle
-                majMenu()
-                this.lesArt.recupListeArt("http://localhost/API/posts")
+                majMenu(this.idCo)
+                this.lesArt.recupListeArt(baseURL + "posts")
             }
             else {
                 let messP = JSON.parse(data.target.response)
@@ -109,7 +110,7 @@ class Users {
     }
     clicSuppUt(idut) { // Suppression d'un utilisateur
         if (confirm("Etes vous sur de vouloir supprimer l'utilisateur : " + idut)) {
-            reqAjax("DELETE", "http://localhost/API/writers/" + idut + "?idUser=" + this.idCo + "&cle=" + this.cleApi, "", (data) => {
+            reqAjax("DELETE", baseURL + "writers/" + idut + "?idUser=" + this.idCo + "&cle=" + this.cleApi, "", (data) => {
                 let dataP = JSON.parse(data.target.response)
                 if (data.target.status == 200) {
                     this.deco()
@@ -122,7 +123,7 @@ class Users {
         }
     }
     clicEditUt(idut) { // Récupération du détail d'un utilisateur pour le modifier
-        reqAjax("GET", "http://localhost/API/writers/" + idut, "", (data) => {
+        reqAjax("GET", baseURL + "writers/" + idut, "", (data) => {
             let dataP = JSON.parse(data.target.response)
             if (data.target.status == 200) {
                 this.afficheFormInsc("", dataP[0].username, dataP[0].id)
@@ -198,7 +199,7 @@ class Users {
         let ajoutCom = document.createElement('div')
         ajoutCom.classList.add('boutCom')
         ajoutCom.innerHTML = "Valider"
-        ajoutCom.addEventListener("click", traiteFormConn)
+        ajoutCom.addEventListener("click", () => { this.traiteFormConn() })
         monFrom.appendChild(ajoutCom)
 
         monCont.appendChild(monFrom)
@@ -236,10 +237,10 @@ class Users {
         ajoutCom.classList.add('boutCom')
         ajoutCom.innerHTML = "Valider"
         if (idut == "") {
-            ajoutCom.addEventListener("click", traiteFormInsc)
+            ajoutCom.addEventListener("click", () => { this.traiteFormInsc() })
         }
         else {
-            ajoutCom.addEventListener("click", this.closetraiteFormEdUt(idut))
+            ajoutCom.addEventListener("click", () => { this.traiteFormEdUt(idut) })
         }
         monFrom.appendChild(ajoutCom)
 
@@ -250,20 +251,21 @@ class Users {
     /* Bloc de fonctions des closures nécessaires */
     /**********************************************/
     closeclicSuppUt(idart) {
-        return function (e) {
+        return (e) => {
             this.clicSuppUt(idart)
         }
     }
     closeclicEditUt(idart) {
-        return function (e) {
+        return (e) => {
             this.clicEditUt(idart)
         }
     }
     closetraiteFormEdUt(idUt) {
-        return function (e) {
+        return (e) => {
             this.traiteFormEdUt(idUt)
         }
     }
+
 }
 
 export { Users };
