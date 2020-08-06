@@ -1,17 +1,18 @@
-var express = require('express');
+var express = require('express'); // On charge express
 var bodyParser = require('body-parser') // On charge le middleWare Body Parser
-const bcrypt = require('bcrypt');
-const { v4: uuidv4 } = require('uuid');
-const saltRounds = 10;
+const bcrypt = require('bcrypt'); // On charge bcrypt (pour le hashage des mot de passe)
+const { v4: uuidv4 } = require('uuid'); // On charge uuid (pour avoir des chaines uniques et aléatoires)
+const saltRounds = 10; //On configure le nombre de sallage
 
-var router = express.Router();
-var connection = require('./conn')
-const acceAuth = require('./acceAuth')
+var router = express.Router(); // On charge les routeur sur express
+var connection = require('./conn') // On charge la connexion à la bdd
+const acceAuth = require('./acceAuth') // On charge le controle d'authentification
 
 router.use(bodyParser.urlencoded({ extended: false })) // Gestion de Body Parser pour les formulaires
 router.use(bodyParser.json()) // Gestion de Body Parser pour les données en JSON
 
 
+// On gère la liste des utilisateurs dans l'API
 router.get('/', (req, res) => {
     connection.query('SELECT id, username, cle FROM writers', function (error, results, fields) {
         if (error) res.status(500).json({ mess: "erreur sur la requete SQL" });
@@ -27,7 +28,7 @@ router.get("/:id", (req, res) => {
     })
 })
 
-// On gère le chemin pour le détail d'un utilisateur
+// On gère le chemin pour les articles d'un utilisateur
 router.get("/:id/posts", (req, res) => {
     connection.execute('SELECT * FROM posts where writerid=?', [req.params.id], function (error, results, fields) {
         if (error) res.status(500).json({ mess: "erreur sur la requete SQL" });
@@ -35,6 +36,7 @@ router.get("/:id/posts", (req, res) => {
     })
 })
 
+// On gère le chemin pour l'ajout d'un utilisateur
 router.post('/', (req, res) => {
     if (req.body.username === undefined) {
         res.status(400).json({ mess: "le champ username doit être rempli" })
@@ -50,25 +52,21 @@ router.post('/', (req, res) => {
                 else {
                     const hash = bcrypt.hashSync(req.body.password, saltRounds);
                     const cleUser = uuidv4()
-                    // Si l'utilisateur n'existe pas, on fait la requête qui ajoute l'utilisateur déjà dans la BDD
                     connection.query('INSERT INTO `writers` (username, hashedpassword, cle) VALUES (?,?,?)', [req.body.username, hash, cleUser], function (err, results) {
-                        // S'il y a une erreur, on renvois une erreur 500 avec un message perso
                         if (err) {
                             res.status(500).json({ mess: "Il y a une erreur interne" })
                         }
                         else {
-                            // Si tout va bien on renvois un code HTTP 200 et l'objet utilisateur comme si la BDD nous l'avais renvoyé
                             res.status(200).json([{ id: results.insertId, username: req.body.username, cle: cleUser }])
                         }
                     });
                 }
             }
         })
-
-
     }
 })
 
+// On gère le chemin pour la modification d'un utilisateur
 router.put('/:id', (req, res) => {
     acceAuth(req, res, () => {
         if (req.body.username === undefined) {
@@ -119,16 +117,14 @@ router.put('/:id', (req, res) => {
                                 }
                             }
                         })
-
-
                     }
                 }
             })
-
         }
     })
 })
 
+// On gère le chemin pour la suppression d'un utilisateur
 router.delete('/:id', (req, res) => {
     acceAuth(req, res, () => {
         connection.execute('SELECT * FROM writers where id=? ', [req.userId], function (error, results, fields) {
@@ -147,4 +143,4 @@ router.delete('/:id', (req, res) => {
     })
 })
 
-module.exports = router;
+module.exports = router; // On exporte notre routage

@@ -1,4 +1,6 @@
-var mysql = require('mysql2');
+var mysql = require('mysql2'); // On charge le module mysql
+
+// On gère la connexion
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -6,6 +8,6 @@ var connection = mysql.createConnection({
     database: 'blog'
 });
 
-connection.connect();
+connection.connect(); // On ouvre la connexion
 
-module.exports = connection;
+module.exports = connection; // On exporte la connexion déjà ouverte

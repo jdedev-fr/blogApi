@@ -1,15 +1,17 @@
-var express = require('express');
+var express = require('express'); // On charge express
 var bodyParser = require('body-parser') // On charge le middleWare Body Parser
+const bcrypt = require('bcrypt'); // On charge le module bcrypt
 
-var router = express.Router();
-var connection = require('./conn')
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+var router = express.Router(); // On charge les routeur sur express
+var connection = require('./conn') // On charge la connexion à la bdd
 
 router.use(bodyParser.urlencoded({ extended: false })) // Gestion de Body Parser pour les formulaires
 router.use(bodyParser.json()) // Gestion de Body Parser pour les données en JSON
 
-
+// Seul le post nous interesse
+// On controle le username et le password
+// Si Ok on renvois l'id et la clé d'api en JSON
+// Si non on renvois un message d'erreur en JSON
 router.post('/', (req, res) => {
     if (req.body.username === undefined) {
         res.status(400).json({ mess: "le champ username doit être rempli" })
@@ -33,12 +35,9 @@ router.post('/', (req, res) => {
                 else {
                     res.status(400).json({ mess: "Vos identifiants ne correspondent pas" })
                 }
-
-
-
             }
         })
     }
 })
 
-module.exports = router;
+module.exports = router; // On exporte notre routage
