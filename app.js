@@ -1,6 +1,6 @@
 
 const express = require('express') // On charge express
-
+const path = require('path');
 
 var posts = require('./postsRoute'); // On charge le routage de posts
 var comments = require('./commentsRoute'); // On charge le routage de comments
@@ -10,7 +10,7 @@ var connect = require('./connectRoute'); // On charge le routage de connect
 const app = express() // On charge l'application sur express
 const port = 80 // On définit le port d'écoute
 
-app.use(express.static('front')) // On paramètre un chemin static pour la gestion du Front
+app.use(express.static(path.join(__dirname, 'front'))) // On paramètre un chemin static pour la gestion du Front
 
 
 app.use('/API/posts', posts); // On utilise le routage de posts pour les url commencant par /API/posts
@@ -31,4 +31,5 @@ app.all("/*", (req, res) => {
     // On renvois une erreur 404 avec un message perso
     res.status(404).send("<h1>La page demandé n'existe pas</h1>")
 })
-app.listen(port) // On démarre le serveur
+//app.listen(port) // On démarre le serveur
+module.exports = app;
