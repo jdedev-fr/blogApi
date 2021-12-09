@@ -1,4 +1,4 @@
-const baseURL = "http://localhost/API/"
+const baseURL = "https://blog.jdedev.fr/API/"
 
 let tabLiensNc = []
 let tabLiensCon = []
